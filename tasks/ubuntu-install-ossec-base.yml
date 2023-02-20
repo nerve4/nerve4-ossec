@@ -1,0 +1,52 @@
+---
+# tasks - ubuntu-install-ossec-base.yml for nerve4-ossec-base
+
+- name: Install required pkgs on Ubuntu
+  ansible.builtin.apt:
+    pkg: "{{ item }}"
+  loop: "{{ ubuntu_pkgs }}"
+
+- name: Upload atomic.repo on Ubuntu
+  become: yes
+  ansible.builtin.template:
+    src: ubuntu-atomic.j2
+    dest: /etc/apt/sources.list.d/atomic.list
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Run apt update on Ubuntu
+  become: yes
+  ansible.builtin.shell: |
+    dpkg --configure -a
+    apt update
+
+- name: Install server pkgs on Ubuntu
+  ansible.builtin.apt:
+    pkg: "ossec-hids-server"
+  when: srvmgmt | bool
+
+- name: Install agent pkgs on Ubuntu
+  ansible.builtin.apt:
+    pkg: "ossec-hids-agent"
+  when: agentmgmt | bool
+
+- name: Upload ossec.conf on Ubuntu
+  become: yes
+  ansible.builtin.template:
+    src: ubuntu-ossec-srv.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: root
+    mode: '0660'
+  when: srvmgmt | bool
+
+- name: Upload ossec.conf on Ubuntu
+  become: yes
+  ansible.builtin.template:
+    src: ubuntu-ossec-agent.j2
+    dest: /var/ossec/etc/ossec.conf
+    owner: root
+    group: root
+    mode: '0660'
+  when: agentmgmt | bool

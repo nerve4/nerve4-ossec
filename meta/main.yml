@@ -1,0 +1,25 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: nerve4 - Lee
+  description: Install OSSEC-Base to Nix Servers
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.4
+  platforms:
+    - name: RedHet
+      versions:
+        - 7
+        - 8
+    - name: Rocky
+      versions:
+        - 8
+    - name: Ubuntu
+      versions:
+        - 20
+        - 22
+  galaxy_tags:
+    - ossec
+    - security
+
+allow_duplicates: true

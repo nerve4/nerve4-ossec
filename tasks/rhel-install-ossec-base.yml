@@ -1,0 +1,60 @@
+---
+# tasks - rhel-install-ossec-base.yml for nerve4-ossec-base
+
+- name: Install required pkgs on Rhel 7.x
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ rhel_pkgs }}"
+  when:
+    - ansible_distribution_major_version == "7"
+
+- name: Install required pkgs on Rhel 8.x / Rocky Linux
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ rhel_pkgs }}"
+  when:
+    (ansible_distribution_major_version == "8") or
+    (ansible_distribution in "Rocky")
+
+- name: Upload atomic.repo on Rhel / Rocky Linux
+  become: yes
+  ansible.builtin.template:
+    src: rhel-atomic.j2
+    dest: /etc/yum.repos.d/atomic.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install server pkgs on Rhel
+  ansible.builtin.yum:
+    name: "ossec-hids-server"
+    state: present
+  when: srvmgmt | bool
+
+- name: Install agent pkgs on Rhel
+  ansible.builtin.yum:
+    name: "ossec-hids-agent"
+    state: present
+  when: agentmgmt | bool
+
+- name: Upload ossec.conf on Rhel/ Rocky Linux
+  become: yes
+  ansible.builtin.template:
+    src: rhel-ossec-srv.j2
+    dest: /var/ossec/etc/ossec-server.conf
+    owner: root
+    group: root
+    mode: '0644'
+  when: srvmgmt | bool
+
+- name: Upload ossec-agent.conf on Rhel/ Rocky Linux
+  become: yes
+  ansible.builtin.template:
+    src: rhel-ossec-agent.j2
+    dest: /var/ossec/etc/ossec-agent.conf
+    owner: root
+    group: root
+    mode: '0644'
+  when: agentmgmt | bool
