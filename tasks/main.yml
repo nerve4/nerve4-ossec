@@ -1,0 +1,12 @@
+---
+# tasks - main.yml for nerve4-ossec-base
+
+- include_tasks: rhel-install-ossec-base.yml
+  when: 
+    (ansible_distribution == "CentOS") or
+    (ansible_distribution == "RedHat") or
+    (ansible_distribution in "Rocky")
+
+- include_tasks: ubuntu-install-ossec-base.yml
+  when: 
+    - ansible_distribution == "Ubuntu"
